@@ -1,0 +1,80 @@
+#[RSLN-2による株価]
+surv<-c(1,p1^(1:11),p1^11*p2^(1:12),p1^11*p2^12*p3^(1:97))
+p12<-0.037;p21<-0.21;pi1<-p12/(p12+p21)
+Y<-S<-rep(0,61)
+S[1]<-9700000
+mu<-c(0.012,-0.016);sigma<-c(0.035,0.078)
+z<-rnorm(1);u<-runif(1)
+if(u<pi1){rho<-1
+}else {rho<-2}
+Y[1]<-mu[rho]+sigma[rho]*z
+for (i in 2:61){
+u<-runif(1)
+if(rho<2&u>p12){rho<-1
+} else {rho<-2}
+if(rho>1&u>p21){rho<-2
+}else {rho<-1}
+z<-rnorm(1)
+Y[i]<-mu[rho]+sigma[rho]*z
+S[i]<-exp(Y[i])*S[i-1]
+}
+#S
+# S:各時点の株価
+# P(t,n)を求める．
+ m<-0.0025;t<-c(1:61);n<-5
+ K<-10000000;sigma<-0.2;r<-0.05
+ d1<-(log(S[t]/K)+(n-(t-1)/12)*(r+log(1-m)+sigma^2/2))/sqrt(n-(t-1)/12)/sigma
+ d2<-d1-sigma*sqrt(n-(t-1)/12)
+ BSP<-function(x)     #BS公式におけるプットオプション価格
+ K*exp(-r*(n-(x-1)/12))*pnorm(-d2)-S[x]*(1-m)^t*pnorm(-d1)
+ pB<-BSP(t)*surv[t]
+#P(t,w)(t=0,...,n-1,w=t)
+ s<-matrix(rep(0,3600),60)
+ for(i in 1:60){
+ t<-i
+ w<-seq(t/12,5,by=1/12)
+ d1<-(log(S[t]/K)+(w-(t-1)/12)*(r+log(1-m)+sigma^2/2))/sqrt(w-(t-1)/12)/sigma
+ d2<-d1-sigma*sqrt(w-(t-1)/12)
+ BSP<-function(x)     #BS公式におけるプットオプション価格
+ K*exp(-r*(w-(x-1)/12))*pnorm(-d2)-S[x]*(1-m)^(t-1)*pnorm(-d1)
+ s[,i]<-c(rep(0,i-1),BSP(t))
+ qB<-c((1-exp(-0.006/12))*rep(1,60)%*%s,0)
+ #無条件ヘッジ・ポートフォリオ価格：H
+ H<-qB+pB
+ #Φt
+ t<-c(1:61)
+ d1<-(log(S[t]/K)+(n-(t-1)/12)*(r+log(1-m)+sigma^2/2))/sqrt(n-(t-1)/12)/sigma
+ ph<--pnorm(-d1)
+ #株式部分:phi
+ t<-c(1:61)
+ phi<-ph*S[t]
+ #債券部分:Y
+ Y<-H-phi
+ #引継ヘッジ・ポートフォリオ:Ht
+ t<-c(1:60)
+ Ht<-c(0,phi[t]*S[t+1]/S[t]+Y[t]*exp(r/12))
+ #死亡者ヘッジ誤差
+ sgn<-(sign(K*rep(1,60)-S[t])+1)/2
+　qHE<-c(0,sgn*(K*rep(1,60)-S[t])*0.006/12*surv[t])
+　#ヘッジ誤差:HE
+ HE<-H+qHE-Ht
+ #収入:危険保険料×ファンド残高
+ Inc<-0.0014*S
+  #毎月のコスト
+ Bal<-HE-Inc  
+ }
+H<-round(H)
+Ht<-round(Ht)
+HE<-round(HE)
+Inc<-round(Inc)
+Bal<-round(Bal)
+data.frame(S,H,Ht,HE,Inc,Bal)
+summary(Bal)
+plot(0:60,Bal/K,type="l",col="red",xlab="month",ylab="loss ratio",axes=FALSE)
+axis(4,pos=0)
+axis(1,pos=0)
+box()
+sum((1/1.05)^((0:60)/12)*Bal)
+hist(HE[2:61],xlab="hedge error",ylab="number of scenarios")
+sd(HE[2:61])
+Bal[Bal<0]

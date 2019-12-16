@@ -1,0 +1,50 @@
+## force of transition##
+mort3<-read.table("3mort.txt",header=T)
+mort<-read.table("shibouritu07M.txt",header=T)
+x<-30:60
+mu13<--log(1-mort3[1:31,2])
+mu23<--log(1-mort[x+1,2])
+mu21<-1-mu23
+mu12<-hbe*1.25
+#data.frame(mu12,mu13,mu23,mu21)
+R<-rep(1.015,10)
+e<-c(10:1)
+Sum<-rep(0,1000)
+S<-matrix(rep(0,10),10,1000)
+for(j in 1:1000){
+sick<-death1<-death2<-recover<-rep(0,10)
+lx<-c(1000,rep(0,10))
+for(i in 1:10){
+u1<-runif(lx[i])
+L<-rep(1,lx[i])
+sick[i]<-sum((sign(mu12[i]*L-u1)+1*L)/2) @#“ü‰@
+death1[i]<-sum((sign(mu13[i]*L-u1)+1*L)/2) #Œ’NŽÒŽ€–S
+H<-rep(1,sick[i])
+u2<-runif(sick[i])
+p2<-mu21[i]/(mu23[i]+mu21[i])
+recover[i]<-sum((sign(p2*H-u2)+1*H)/2) #‰ñ•œ
+death2[i]<-sum((sign(u2-p2*H)+1*H)/2) #”ñŒ’NŽÒŽ€–S
+lx[i+1]<-lx[i]-sick[i]+recover[i]-death1[i]-death2[i]
+S[i,j]<-sick[i]*daysbe[i]
+}
+Sum[j]<-sum(S[1:10,j])
+}
+summary(Sum)
+hist(Sum)
+length(Sum[Sum>12236)
+length(Sum[Sum>16307)
+length(Sum[Sum>17180)
+SORT<-sort(Sum)
+SORT[977]
+SORT[990]
+
+#lx
+#sick
+#recover
+#death1
+#death2
+#lx
+#sum(sick)
+#sum(death1)
+
+

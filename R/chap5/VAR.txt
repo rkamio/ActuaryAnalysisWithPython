@@ -1,0 +1,14 @@
+#VAR
+library(vars)
+eq<-read.table("USJapanequity.txt",header=T)
+int<-read.table("interestjapan.txt",header=T)
+eq1<-eq[217:648,3]
+　##日本の株式収益率(1970.1-2005.12)の抽出##
+int1<-int[1:432,c(3,4)] 
+##日本の長短金利(1970.1-2005.12)の抽出##
+data<-cbind(eq1,int1)
+plot(data,nc=2)
+cor(data)
+pict1<-VAR(data,p=1,type="both")
+pict1
+VARselect(data,lag.max=8,type="both")

@@ -1,0 +1,13 @@
+data(trees)
+names(trees)
+attach(trees)
+par(mfrow=c(1,2))
+plot(log(Girth),log(Volume))
+plot(log(Height),log(Volume))
+Radius<-Girth/12/2/pi
+model1<-lm(log(Volume)~log(Radius)+log(Height))
+summary(model1)
+model1<-glm(log(Volume)~log(Radius)+log(Height))
+model2<-glm(log(Volume)~offset(2*log(Radius)+log(Height)))
+model3<-glm(log(Volume)~-1+offset(1.14473+2*log(Radius)+log(Height)))
+anova(model1,model2,model3,test="F")

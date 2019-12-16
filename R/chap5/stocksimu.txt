@@ -1,0 +1,79 @@
+# simulation(lognormal)
+mu<-0.1
+sigma<-0.2
+z<-rnorm(1000)
+y<-matrix(mu+sigma*z,100,10)
+Y<-matrix(rep(1,1000),100,10)
+S<-matrix(rep(1,1000),100,10)
+for (j in 1:10){
+Y[,j]<-cumsum(y[,j])
+S[,j]<-exp(Y[,j])
+}
+Y
+S
+# simulation(ar1)
+mu<-0.1
+sigma<-0.2
+a<-0.7
+Y<-matrix(rep(1,1100),100,11)
+S<-matrix(rep(1,1100),100,11)
+for (i in 1:100){
+Y[i,1]<-mu　#初期値
+S[i,1]<-exp(mu)　#初期値
+for (j in 1:10){
+Y[i,j+1]<-mu+a*(Y[i,j]-mu)+sigma*rnorm(1)
+S[i,j+1]<-exp(Y[i,j+1])
+}
+}
+Y[,-1] #1列目を除外
+S[,-1]　#同上
+# simulation(garch)
+mu<-0.1
+alpha0<-0.0001
+alpha1<-0.08
+beta<-0.9
+Y<-matrix(rep(1,1100),100,11)
+sigma2<-matrix(rep(1,1100),100,11)
+S<-matrix(rep(1,1100),100,11)
+for (i in 1:100){
+Y[i,1]<-mu　#初期値
+S[i,1]<-exp(mu)　#初期値
+sigma2[1,1]<-alpha0/(1-alpha1-beta)
+for (j in 1:10){
+sigma2[i,j+1]<-alpha0+alpha1*(Y[i,j]-mu)^2+beta*sigma2[i,j]
+Y[i,j+1]<-mu+a*(Y[i,j]-mu)+sqrt(sigma2[i,j+1])*rnorm(1)
+S[i,j+1]<-exp(Y[i,j+1])
+}
+}
+Y[,-1] #1列目を除外
+S[,-1]　#同上
+# simulation(RSLN2)
+p12<-0.004
+p21<-0.016
+Y<-matrix(rep(1,1000),100,10)
+S<-matrix(rep(1,1000),100,10)
+K<-matrix(rep(1,1000),100,10)
+mu<-c(0.2,-0.05)
+sigma<-c(0.1,0.3)
+for (i in 1:100){
+z<-rnorm(1)
+u<-runif(1)
+if(u<0.2){rho<-1
+}else {rho<-2}
+Y[i,1]<-mu[rho]+sigma[rho]*z
+S[i,1]<-exp(Y[i,1])
+K[i,1]<-rho
+for (j in 2:10){
+u<-runif(1)
+if(rho<2&u>p12){rho<-1
+} else {rho<-2}
+if(rho>1&u>p21){rho<-2
+}else {rho<-1}
+K[i,j]<-rho
+z<-rnorm(1)
+Y[i,j]<-mu[rho]+sigma[rho]*z
+S[i,j]<-exp(Y[i,j])
+}
+}
+K
+Y

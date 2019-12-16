@@ -1,0 +1,10 @@
+cancer<-read.table("cancer.txt",header=T)
+attach(cancer)
+names(cancer)
+plot(survfit(Surv(death,status)~treatment),lty=c(1,2,3,4))
+tapply(death[status==1],treatment[status==1],mean)
+tapply(death[status==1],treatment[status==1],var)
+model<-survreg(Surv(death,status)~treatment,dist="exponential")
+
+model<-survreg(Surv(death,status)~treatment,dist="extreme")
+summary(model)

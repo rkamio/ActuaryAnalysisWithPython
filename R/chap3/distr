@@ -1,0 +1,30 @@
+x<-0:15　#x=0,1,･･･15まで出力
+round(dbinom(x,100,prob=0.03),digits=4)　#4桁未満を四捨五入
+round(dpois(x,3),digits=4)
+round(dnbinom(x,100,prob=1/1.03),digits=4)
+plot(x,dbinom(x,100,prob=0.03),type="o",pch=16,col="black"
+,xlim=c(0,15),ylim=c(0,0.3),ann=F,ylab="")
+par(new=T)　#図の重ね合わせ
+plot(x,dpois(x,3),type="l",lwd=3,col="green",xlim=c(0,15)
+,ylim=c(0,0.3),ann=F,ylab="")
+par(new=T)
+plot(x,dnbinom(x,100,prob=1/1.03),type="b",pch=0,col="red"
+,xlim=c(0,15),ylim=c(0,0.3))
+
+library(actuar)
+x<-0:15　#x=0,1,･･･15まで出力
+round(dgamma(x,12,2),digits=4)#4桁未満を四捨五入
+round(dpareto(x,3,4),digits=4)
+round(dlnorm(x,log(2)+log(6)/2,sqrt(log(1.5))),digits=4)
+plot(x,dgamma(x,12,2),type="o",pch=16,col="black"
+,xlim=c(0,15),ylim=c(0,0.3),ann=F,ylab="")
+par(new=T)　#図の重ね合わせ
+plot(x,dpareto(x,3,4),type="l",lwd=3,col="green",xlim=c(0,15)
+,ylim=c(0,0.3),ann=F,ylab="")
+par(new=T)
+plot(x,dlnorm(x,log(2)+log(6)/2,sqrt(log(1.5))),type="b",pch=0,col="red"
+,xlim=c(0,15),ylim=c(0,0.3))
+
+help(pareto)
+
+

@@ -1,0 +1,28 @@
+##nonhomogeneous poisson 1##
+lambda<-function(t){
+1+t/5}
+lmax<-3
+T<-10
+t<-0
+S<-rep(0,100)
+for (i in 1:100){
+u<-runif(1)
+t<-t-1/lmax*log(u)
+if(t<T){
+u<-runif(1)
+if(u<lambda(t)/lmax){
+S[i]<-t 
+i<-i+1
+}else{}
+}else{break}
+}
+Si<-S[S>0]
+length(Si)
+Si
+##nonhomogeneous poisson 2##
+U<-runif(10);a<-0.003;S<-rep(0,10);s<-0
+ for (i in 1:10){
+ s<-(s+a*U[i])/(1-U[i])
+  S[i]=s
+ }
+round(S,4)

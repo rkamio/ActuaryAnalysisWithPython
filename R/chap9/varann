@@ -1,0 +1,95 @@
+#[RSLN-2による株価]
+
+PVHE<-rep(0,5000)
+for(j in 1:5000){
+p12<-0.037
+p21<-0.21
+pi1<-p12/(p12+p21)
+lnmu<-c(0.012,-0.016)
+lnsigma<-c(0.035,0.078)
+}
+Y<-rep(0,120)
+for(i in 1:120){
+u<-runif(1)
+z<-rnorm(1)
+if(u<pi1){
+rho<-1
+} else{
+rho<-2
+}
+  Y[i]<-lnmu[rho]+lnsigma[rho]*z
+ }
+plot(Y,type="l") #Y:月次株式収益率
+ a<-matrix(rep(1,14400),120)
+ a[lower.tri(a)]<-0
+ Y<-Y%*%a
+ S<-exp(Y)
+ S<-c(1,S)
+plot(S,type="l")　#S:毎月末の株価
+
+#P(t,n)を求める．
+ t<-c(1:121)
+ n<-10
+ K<-100
+ sigma<-0.2
+ r<-0.06
+ 
+ d1<-(log(S[t]/K)+(n-(t-1)/12)*(r+sigma ^2/2))
+ 　　/sqrt(n-(t-1)/12)*sigma
+ d2<-d1-sigma*sqrt(n-(t-1)/12)
+ 
+ BSP<-function(x)     #BS公式におけるプットオプション価格
+ K*exp(-r*(T-(x-1)/12))*pnorm(-d2)-S[x]*pnorm(-d1)
+ 
+ pB<-BSP(t)*tpx
+ 
+#P(t,w)(t=0,...,n-1,w=t)
+  s<-matrix(rep(0,14400),120)
+ for(i in 1:120)
+ {
+ t<-i
+ w<-seq(t/12,10,by=1/12)
+ d1<-(log(S[t]/K)+(w-(t-1)/12)*(r+sigma ^2/2))
+ 　　/sqrt(w-(t-1)/12)*sigma
+ d2<-d1-sigma*sqrt(w-(t-1)/12)
+ 
+ BSP<-function(x)     #BS公式におけるプットオプション価格
+ K*exp(-r*(w-(x-1)/12))*pnorm(-d2)-S[x]*pnorm(-d1)
+ 
+ s[,i]<-c(rep(0,i-1),BSP(t))
+ }
+ qB<-c(tqx[1:120]%*%s,0)
+ 
+無条件ヘッジ・ポートフォリオ価格：H
+ H<-qB+pB
+ 
+#Φt
+ t<-c(1:121)
+ d1<-(log(S[t]/K)+(n-(t-1)/12)*(r+sigma ^2/2))
+ 　　/sqrt(n-(t-1)/12)*sigma
+ ph<--dnorm(-d1)
+ 
+#株式部分:phi
+ t<-c(1:121)
+ phi<-ph*S[t]
+  
+#債券部分:Y
+ Y<-H-phi
+ 
+#引継ヘッジ・ポートフォリオ:Ht
+ t<-c(1:120)
+ Ht<-c(0,phi[t]*S[t+1]/S[t]+Y[t]*exp(r/12))
+ 
+#ヘッジ誤差:HE
+ HE<-c(0,H[t]-Ht[t+1])
+ 
+#取引費用:TC
+ tau<-0.002
+ t<-c(1:120)
+ TC<-c(0,tau*S[t]*abs(phi[t+1]-phi[t]))
+ 
+ga<-function(x)
+ HE[x]*exp(-r*x)
+ as<-sum(ga(c(2:121)))
+ PVHE[j]<-as
+ }

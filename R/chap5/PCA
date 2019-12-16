@@ -1,0 +1,14 @@
+# PCA
+dat<-read.table("zeroyield.txt",header=T)
+dat1<-dat[-1,]-dat[-length(dat1[,1]),]
+(ans<-prcomp(dat1))
+summary(ans)
+x1<-as.numeric(ans$rotation[,1])
+x2<-as.numeric(ans$rotation[,2])
+x3<-as.numeric(ans$rotation[,3])
+plot(x1,x2,type="n")
+text(x1,x2,colnames(dat1))
+plot(x1,x3,type="n")
+text(x1,x3,colnames(dat1))
+plot(x2,x3,type="n")
+text(x2,x3,colnames(dat1))

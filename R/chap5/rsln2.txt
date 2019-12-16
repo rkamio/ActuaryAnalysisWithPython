@@ -1,0 +1,19 @@
+# RSLN2
+theta<-c(-0.054,0.035,0.062,0.0312,0.17,0.07)#6つのパラメータを指定する.
+NN<-length(topix)
+L<-0
+F<-function(theta){
+fsum1<-theta[6]/(theta[5]+theta[6])*dnorm(topix[1],theta[1],theta[3])
+fsum2<-theta[5]/(theta[5]+theta[6])*dnorm(topix[1],theta[2],theta[4])
+fsum<-fsum1+fsum2
+L<-log(fsum)+L
+for (k in 2:NN){
+fsum1<-((1-theta[5])*fsum1+theta[6]*fsum2)/fsum*dnorm(topix[k],theta[1],theta[3])
+fsum2<-(theta[5]*fsum1+(1-theta[6])*fsum2)/fsum*dnorm(topix[k],theta[2],theta[4])
+fsum<-fsum1+fsum2
+L<-log(fsum)+L
+}
+return(L)
+}
+optim(theta,F,control=list(fnscale=-1))
+

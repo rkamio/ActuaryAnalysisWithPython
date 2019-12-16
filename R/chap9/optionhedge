@@ -1,0 +1,39 @@
+#BS公式におけるプットオプション価格
+dd1<-(log(1000/K)+(r+sigma^2/2))/sigma
+dd2<-dd1-sigma
+poc<-(-K*exp(-r)*pnorm(dd2)+1000*pnorm(dd1))*1000
+count<-rep(0,100)
+Y<-matrix(rep(1,1300),100,13)
+S<-matrix(rep(1,1300),100,13)
+mu<-0.1/12
+sigma<-0.2/sqrt(12)
+for (i in 1:100){
+Y[i,1]<-0　#初期値
+S[i,1]<-1　#初期値
+for (j in 1:12){
+Y[i,j+1]<-mu+sigma*rnorm(1)
+S[i,j+1]<-exp(Y[i,j+1])
+}
+}
+for(i in 1:100){
+kabuka<-S[i,]
+SS<-kabuka*1000
+K<-1000
+r<-0.05
+sigma<-0.4
+t<-seq(0,1,by=1/12)
+d1<-(log(SS/K)+(1-t)*(r+sigma^2/2))/sigma/sqrt(1-t)
+d2<-d1-sigma*sqrt(1-t) 
+delta<-pnorm(d1)
+kabusu<-(delta-c(0,delta[-13]))*1000
+cost<-kabusu*SS
+ruiseki<-cumsum(cost)
+kinri<-ruiseki*r/12
+kinri[13]<-0
+data.frame(SS,delta,kabusu,cost,ruiseki,kinri)
+count[i]<-ruiseki[13]-(sign(SS[13]-1000)+1)/2*SS[13]*1000-poc
+}
+summary(count)
+sd(count)
+hist(count)
+

@@ -1,0 +1,7 @@
+smoke<-read.table("smoker.txt",header=T)
+names(smoke)
+smoke
+attach(smoke)
+result<-glm(deaths~offset(log(popn))+agecat+smoker+I(agecat^2)+agecat*smoker,family=poisson,data=smoke)
+summary(result)
+exp(2.364)

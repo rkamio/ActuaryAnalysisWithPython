@@ -1,0 +1,5 @@
+library(survival)
+#fit a Cox proportional hazards model and plot the  
+#predicted survival for a 60 year old 
+fit <- coxph(Surv(futime,fustat)~rx+age, data = ovarian) 
+summary(fit)

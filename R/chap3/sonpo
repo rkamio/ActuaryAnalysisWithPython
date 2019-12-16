@@ -1,0 +1,138 @@
+#離散型分布（確率分布の値とグラフ）
+x<-0:15　#x=0,1,･･･15まで出力
+round(dbinom(x,100,prob=0.03),digits=4)　#4桁未満を四捨五入
+round(dpois(x,3),digits=4)
+round(dnbinom(x,100,prob=1/1.03),digits=4)
+plot(x,dbinom(x,100,prob=0.03),type="o",pch=16,col="black"
+,xlim=c(0,15),ylim=c(0,0.3),ann=F)
+par(new=T)　#図の重ね合わせ
+plot(x,dpois(x,3),type="l",lwd=3,col="green",xlim=c(0,15)
+,ylim=c(0,0.3),ann=F)
+par(new=T)
+plot(x,dnbinom(x,100,prob=1/1.03),type="b",pch=0,col="red"
+,xlim=c(0,15),ylim=c(0,0.3))
+
+round(dbinom(x,100,prob=0.03),digits=4)
+
+round(dpois(x,3),digits=4)
+
+round(dnbinom(x,100,prob=1/1.03),digits=4)
+
+#連続分布の離散化
+library(actuar)
+x <- seq(0, 5, 0.5)
+op <- par(mfrow = c(1, 1), col = "black")
+## Upper and lower discretization
+xu<-tail(x,1)
+fu <- discretize(pgamma(x,2,1), method = "upper",
+                 from = 0, to = xu, step = 0.5)
+fl <- discretize(pgamma(x,2,1), method = "lower",
+                 from = 0, to = xu, step = 0.5)
+curve(pgamma(x,2,1), xlim = c(0, 5))
+par(col = "blue")
+plot(stepfun(head(x, -1), diffinv(fu)), pch = 19, add = TRUE)
+par(col = "green")
+plot(stepfun(x, diffinv(fl)), pch = 19, add = TRUE)
+par(col = "black")
+## Rounding (or midpoint) discretization
+fr <- discretize(pgamma(x,2, 1), method = "rounding",
+                 from = 0, to = xu, step = 0.5)
+curve(pgamma(x,2,1), xlim = c(0, 5))
+par(col = "blue")
+plot(stepfun(head(x, -1), diffinv(fr)), pch = 19, add = TRUE)
+par(col = "black")
+sum(fr)
+## First moment matching
+fb <- discretize(pgamma(x,2,1), method = "unbiased",
+                 lev = levgamma(x,2, 1), from = 0, to = xu, step = 0.5)
+curve(pgamma(x,2, 1), xlim = c(0, 5))
+par(col = "blue")
+plot(stepfun(x, diffinv(fb)), pch = 19, add = TRUE)
+sum(fb)
+par(op)
+
+#モーメント・マッチング法(個別データ)
+library(actuar)
+data(dental)
+emm(dental,order=1:2)
+
+#モーメント・マッチング法（グループ化データ）
+data(gdental)
+x<-gdental
+hist(x)
+Fnt<-ogive(x)
+knots(Fnt)
+Fnt(knots(Fnt))
+plot(Fnt)
+
+emm(gdental,order=1:2)
+
+#モーメント・マッチング法
+x.gam<-rgamma(200,rate=0.5,shape=3.5)
+mean.gam<-mean(x.gam)
+var.gam<-var(x.gam)
+l.est<-mean.gam/var.gam
+a.est<-((mean.gam)^2)/var.gam
+#最尤法１
+library(stats4) ## loading package stats4
+ll<-function(lambda,alfa) {n<-200
+x<-x.gam-n*alfa*log(lambda)+n*log(gamma(alfa))-(alfa-1)*sum(log(x))
++lambda*sum(x)} ## -log-likelihood function
+est<-mle(minuslog=ll, start=list(lambda=2,alfa=1))
+summary(est)
+#最尤法2
+library(MASS) ## loading package MASS
+fitdistr(x.gam,"gamma") ## fitting gamma pdf parameters
+#適合度検定
+x.gam.cut<-cut(x.gam,breaks=c(0,3,6,9,12,18)) ##binning data
+table(x.gam.cut) ## binned data table
+x.gam.cut
+(pgamma(3,shape=a.est,rate=l.est)-pgamma(0,shape=a.est,rate=l.est))*200
+(pgamma(6,shape=a.est,rate=l.est)-pgamma(3,shape=a.est,rate=l.est))*200
+(pgamma(9,shape=a.est,rate=l.est)-pgamma(6,shape=a.est,rate=l.est))*200
+(pgamma(12,shape=a.est,rate=l.est)-pgamma(9,shape=a.est,rate=l.est))*200
+(pgamma(18,shape=a.est,rate=l.est)-pgamma(12,shape=a.est,rate=l.est))*200
+f.ex<-c(26,69,56,30,19)
+f.os<-vector()
+for(i in 1:5) f.os[i]<- table(x.gam.cut)[[i]] ## empirical frequencies
+X2<-sum(((f.os-f.ex)^2)/f.ex) ## chi-square statistic
+gdl<-5-2-1 ## degrees of freedom
+1-pchisq(X2,gdl) ## p-value
+#Panjer
+model1<-fitdistr(x.gam,"gamma")
+model2<-fitdistr(x.gam,"normal")
+model3<-fitdistr(x.gam,"lognormal")
+aic1<-model1$loglik-2
+aic2<-model2$loglik-2
+aic3<-model3$loglik-2
+sbi1<-model1$loglik-log(200)
+sbi2<-model2$loglik-log(200)
+sbi3<-model3$loglik-log(200)
+c(aic1,aic2,aic3,sbi1,sbi2,sbi3)
+
+fx.b <- discretize(pgamma(x, 2, 1), from = 0, to = 22, step = 0.5,method = "unbiased", lev = levgamma(x, 2, 1))
+pn <- dpois(0:qpois(1-1E-6, 10), 10)　#
+Fs <- aggregateDist("convolution", model.freq = pn,
+model.sev = fx.b,x.scale = 0.5)
+summary(Fs)                        \# summary method
+knots(Fs)                          \# support of Fs (knots)
+Fs(knots(Fs))                      \# evaluation at knots
+plot(Fs, do.points = FALSE, verticals = TRUE, xlim = c(0, 60)) \# graphic
+mean(Fs)                           \# empirical mean
+quantile(Fs)                       \# quantiles
+
+summary(Fs)                       # summary method
+knots(Fs)                        # support of Fs (knots)
+Fs(knots(Fs))                  # evaluation at knots
+plot(Fs, do.points = FALSE, verticals = TRUE, xlim = c(0, 60)) # graphic 
+mean(Fs)                         # empirical mean
+quantile(Fs)                     # quantiles
+#FFT
+x <- 1:4
+fft(x)
+fft(fft(x), inverse = TRUE)/length(x)
+#coumpound poisson
+x<-c(0,0.5,0.4,0.1,0,0,0,0)
+y<-fft(x)
+z<-exp(3*(y-1))
+fft(z,inverse=TRUE)/length(z)

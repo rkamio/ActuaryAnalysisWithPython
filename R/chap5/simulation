@@ -1,0 +1,217 @@
+# time series
+ts(1:10, frequency = 4, start = c(1959, 2)) # 2nd Quarter of 1959
+print(ts(1:10, frequency = 7, start = c(12, 2)), calendar = TRUE)# print.ts(.)
+## Using July 1954 as start date:
+gnp <- ts(cumsum(1 + round(rnorm(100), 2)),start = c(1954, 7),frequency = 12)##cusumは累積する関数
+plot(gnp) # using 'plot.ts' for time-series plot
+## Multivariate
+z <- ts(matrix(rnorm(300), 100, 3), start=c(1961, 1), frequency=12)
+class(z)
+plot(z)
+plot(z, plot.type="single", lty=1:3)
+# stock return
+equ<-read.table("USJapanequity.txt",header=T)
+data<-equ[,3]
+yudo<-function(x,mu,sigma){
+log(dnorm(x,mu,sigma))
+}
+YUDO<-function(y){
+sum(yudo(data,y[1],y[2]))
+}
+optim(c(0.01,0.05),YUDO,control=list(fnscale=-1))
+#arma
+library(tseries)
+data<-read.table("USJapanequity.txt",header=T)
+N<-length(data[,1])
+topix.data<-data[337:N,3]
+topix.ar<-arma(topix.data)
+summary(topix.ar)
+plot(topix.ar)
+summary(topix.ar)
+#arch
+topix.arch<-garch(topix.data,c(0,1))
+summary(topix.arch)
+AIC(topix.arch)
+plot(topix.arch)
+#garch
+topix.garch<-garch(topix)
+summary(topix.garch)
+AIC(topix.garch)
+plot(topix.garch)
+# RSLN2
+theta<-c(-0.054,0.035,0.062,0.0312,0.17,0.07)#6つのパラメータを指定する.
+NN<-length(topix)
+L<-0
+F<-function(theta){
+fsum1<-theta[6]/(theta[5]+theta[6])*dnorm(topix[1],theta[1],theta[3])
+fsum2<-theta[5]/(theta[5]+theta[6])*dnorm(topix[1],theta[2],theta[4])
+fsum<-fsum1+fsum2
+L<-log(fsum)+L
+for (k in 2:NN){
+fsum1<-((1-theta[5])*fsum1+theta[6]*fsum2)/fsum*dnorm(topix[k],theta[1],theta[3])
+fsum2<-(theta[5]*fsum1+(1-theta[6])*fsum2)/fsum*dnorm(topix[k],theta[2],theta[4])
+fsum<-fsum1+fsum2
+L<-log(fsum)+L
+}
+return(L)
+}
+optim(theta,F,control=list(fnscale=-1))
+# simulation(lognormal)
+mu<-0.1
+sigma<-0.2
+z<-rnorm(1000)
+y<-matrix(mu+sigma*z,100,10)
+Y<-matrix(rep(1,1000),100,10)
+S<-matrix(rep(1,1000),100,10)
+for (j in 1:10){
+Y[,j]<-cumsum(y[,j])
+S[,j]<-exp(Y[,j])
+}
+Y
+S
+# simulation(ar1)
+mu<-0.1
+sigma<-0.2
+a<-0.7
+Y<-matrix(rep(1,1100),100,11)
+S<-matrix(rep(1,1100),100,11)
+for (i in 1:100){
+Y[i,1]<-mu　#初期値
+S[i,1]<-exp(mu)　#初期値
+for (j in 1:10){
+Y[i,j+1]<-mu+a*(Y[i,j]-mu)+sigma*rnorm(1)
+S[i,j+1]<-exp(Y[i,j+1])
+}
+}
+Y[,-1] #1列目を除外
+S[,-1]　#同上
+# simulation(garch)
+mu<-0.1
+alpha0<-0.0001
+alpha1<-0.08
+beta<-0.9
+Y<-matrix(rep(1,1100),100,11)
+sigma2<-matrix(rep(1,1100),100,11)
+S<-matrix(rep(1,1100),100,11)
+for (i in 1:100){
+Y[i,1]<-mu　#初期値
+S[i,1]<-exp(mu)　#初期値
+sigma2[1,1]<-alpha0/(1-alpha1-beta)
+for (j in 1:10){
+sigma2[i,j+1]<-alpha0+alpha1*(Y[i,j]-mu)^2+beta*sigma2[i,j]
+Y[i,j+1]<-mu+a*(Y[i,j]-mu)+sqrt(sigma2[i,j+1])*rnorm(1)
+S[i,j+1]<-exp(Y[i,j+1])
+}
+}
+Y[,-1] #1列目を除外
+S[,-1]　#同上
+# simulation(RSLN2)
+p12<-0.004
+p21<-0.016
+Y<-matrix(rep(1,1000),100,10)
+S<-matrix(rep(1,1000),100,10)
+K<-matrix(rep(1,1000),100,10)
+mu<-c(0.2,-0.05)
+sigma<-c(0.1,0.3)
+for (i in 1:100){
+z<-rnorm(1)
+u<-runif(1)
+if(u<0.2){rho<-1
+}else {rho<-2}
+Y[i,1]<-mu[rho]+sigma[rho]*z
+S[i,1]<-exp(Y[i,1])
+K[i,1]<-rho
+for (j in 2:10){
+u<-runif(1)
+if(rho<2&u>p12){rho<-1
+} else {rho<-2}
+if(rho>1&u>p21){rho<-2
+}else {rho<-1}
+K[i,j]<-rho
+z<-rnorm(1)
+Y[i,j]<-mu[rho]+sigma[rho]*z
+S[i,j]<-exp(Y[i,j])
+}
+}
+K
+Y
+# interest rate
+JGB<-read.table("kokusaikinri.txt")
+kinri<-ts(JGB,start=c(1972))
+ar(kinri)
+
+R<-matrix(rnorm(30*20),30,20)
+E<-matrix(rep(1,30*30),30,30)
+E[upper.tri(E)]<-0
+KS1<-1.3626+1.0872*E％*％R
+KS<-rbind(rep(1.5,20),KS1)
+plot(ts(KS),plot.type="single")
+
+ar(log(kinri))
+
+# termstrc
+library(termstrc)
+data(eurobonds)
+group <- c("GERMANY", "AUSTRIA", "ITALY")
+bonddata <- eurobonds
+matrange <- c(2,12)
+method <- "Nelson/Siegel"
+fit <- "prices"
+weights <- "duration"
+control <- list(eval.max=100000, iter.max=500)
+b <- matrix(rep(c(0,0,0, 1),3),nrow=3,byrow=TRUE)
+rownames(b) <- group
+colnames(b) <- c("beta0","beta1","beta2","tau1")
+x <- nelson_estim(group, bonddata, matrange, 
+method, fit, weights, startparam=b,control)
+print(x)
+summary(x)
+plot(x)
+
+x$spot$ITALY
+x$forward$ITALY
+
+# PCA
+dat<-read.table("zeroyield.txt",header=T)
+dat1<-dat[-1,]-dat[-length(dat1[,1]),]
+(ans<-prcomp(dat1))
+summary(ans)
+x1<-as.numeric(ans$rotation[,1])
+x2<-as.numeric(ans$rotation[,2])
+x3<-as.numeric(ans$rotation[,3])
+plot(x1,x2,type="n")
+text(x1,x2,colnames(dat1))
+plot(x1,x3,type="n")
+text(x1,x3,colnames(dat1))
+plot(x2,x3,type="n")
+text(x2,x3,colnames(dat1))
+
+
+ini<-dat1[475,]
+a<-ini
+a1<-ans$loadings[,1]*sd(dat2)/sqrt(10.689)
+a2<-ans$loadings[,2]*sd(dat2)/sqrt(10.689)
+a3<-ans$loadings[,3]*sd(dat2)/sqrt(10.689)
+N<-10
+R<-matrix(rep(0,15*N),N,15)
+for(i in 1:N){
+a<-a1*rnorm(1)+a2*rnorm(1)+a3*rnorm(1)+a
+R[i,1:15]<-as.numeric(a)
+}
+exp(ini)
+exp(R)
+
+#VAR
+library(vars)
+eq<-read.table("USJapanequity.txt",header=T)
+int<-read.table("interestjapan.txt",header=T)
+eq1<-eq[217:648,3]
+　##日本の株式収益率(1970.1-2005.12)の抽出##
+int1<-int[1:432,c(3,4)] 
+##日本の長短金利(1970.1-2005.12)の抽出##
+data<-cbind(eq1,int1)
+plot(data,nc=2)
+cor(data)
+pict1<-VAR(data,p=1,type="both")
+pict1
+VARselect(data,lag.max=8,type="both")

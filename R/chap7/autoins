@@ -1,0 +1,15 @@
+library(MASS)
+data(Insurance)
+attach(Insurance)
+par(mfrow=c(1,3))
+boxplot(Claims~District)
+boxplot(Claims~Group)
+boxplot(Claims~Age)
+##Gaussian##
+Ins1<-glm(Claims ~ District + Group + Age + offset(log(Holders)),
+data = Insurance, family = gaussian)
+summary(Ins1)
+##Poisson##
+Ins2<-glm(Claims ~ District + Group + Age + offset(log(Holders)),
+data = Insurance, family = poisson)
+summary(Ins2)

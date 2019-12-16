@@ -1,0 +1,14 @@
+# interest rate
+JGB<-read.table("kokusaikinri.txt")
+kinri<-ts(JGB,start=c(1972))
+ar(kinri)
+
+R<-matrix(rnorm(30*20),30,20)
+E<-matrix(rep(1,30*30),30,30)
+E[upper.tri(E)]<-0
+KS1<-1.3626+1.0872*E“*“R
+KS<-rbind(rep(1.5,20),KS1)
+plot(ts(KS),plot.type="single")
+
+ar(log(kinri))
+

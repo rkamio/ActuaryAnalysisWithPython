@@ -1,0 +1,27 @@
+P<-1000
+n<-10
+i<-0.03
+nendo<-c(1:10)
+#####Œ³‹à‹Ï“™ž‹p#####
+c<-rep(0,n)
+SS<-c(P,rep(0,n))
+for (j in 1:n){
+SS[j+1]<-SS[j]*(1+i)-P/n
+c[j]<-P/n+i*SS[j+1]
+}
+S<-SS[1:n+1]
+PP<-rep(P/n,n)
+hyo1<-data.frame(”N“x=nendo,•ÔÏŠz=c,Œ³–{ž‹p=PP,—˜‘§ž‹p=c-PP,Â–±Žc‚=S)
+hyo1
+#####Œ³—˜‹Ï“™ž‹p#####
+v<-1/(1+i)
+a<-P/v/(1-v^n)*(1-v)
+c<-rep(a,n)
+SS<-c(P,rep(0,n))
+for (j in 1:n){
+SS[j+1]<-SS[j]*(1+i)-a
+PP[j]<-SS[j]-SS[j+1]
+}
+S<-SS[1:n+1]
+hyo2<-data.frame(”N“x=nendo,•ÔÏŠz=c,Œ³–{ž‹p=PP,—˜‘§ž‹p=c-PP,Â–±Žc‚=S)
+hyo2

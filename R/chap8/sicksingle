@@ -1,0 +1,60 @@
+## force of transition##
+mort3<-read.table("3mort.txt",header=T)
+mort<-read.table("shibouritu07M.txt",header=T)
+x<-30:60
+mu13<--log(1-mort3[1:31,2])
+mu23<--log(1-mort[x+1,2])
+mu21<-1-mu23
+mu12<-hbe
+#data.frame(mu12,mu13,mu23,mu21)
+## calculation
+sumd12<-sumd21<-sumd13<-sumd23<-0
+for(j in 1:100){
+d12<-d21<-d13<-d23<-sumtau<-0
+x<-30;t<-0;tau<-0;age<-c(1:31)
+cat("j");print(j)
+for(i in 1:30){
+alpha<-max(mu12[age]+mu13[age])
+u0<-runif(1)
+t<--log(1-u0)/alpha
+if(t>=60-x){}
+else{
+x<-x+t
+y<-floor(x)-29
+p1<-mu12[y]/(mu12[y]+mu13[y])
+u1<-runif(1)
+nyuin<-(sign(p1-u1)+1)/2 #“ü‰@
+d12<-d12+nyuin #—ÝÏ“ü‰@”@
+d13<-(sign(u1-p1)+1)/2@@#Ž€–S1
+if(nyuin==1){
+p2<-mu21[y]/(mu21[y]+mu23[y])
+u2<-runif(1)
+d21<-(sign(p2-u2)+1)/2+d21 #‰ñ•œ
+d23<-(sign(u2-p2)+1)/2@#Ž€–S2
+tau<-exp(2.3639+0.02032*x)
+sumtau<-tau+sumtau
+x<-x+tau/365
+}else{}
+print(x)
+}
+sumd12<-sumd12+d12
+sumd21<-sumd21+d21
+sumd13<-sumd13+d13
+sumd23<-sumd23+d23
+}
+cat("sumtau")
+print(sumtau)
+cat("d12")
+print(d12)
+cat("d13")
+print(d13)
+cat("d21")
+print(d21)
+cat("d23")
+print(d23) #Šeó‘Ô‚Ì”­¶”‚Ìo—Í
+}
+sumd12
+sumd21
+sumd13
+sumd23
+

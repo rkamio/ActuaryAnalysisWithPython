@@ -1,0 +1,53 @@
+q<-read.table("shibouritu07M.txt",header=T)
+q[,2]
+px<-1-q[,2]
+lx<-dx<-Lx<-ex<-rep(0,108)
+lx[1]<-100000
+for (i in 1:107){
+lx[i+1]<-px[i]*lx[i]
+dx[i]<-lx[i]-lx[i+1]
+}
+for (i in 1:108){
+Lx[108-i]<-lx[109-i]+Lx[109-i]
+ex[108-i]<-1/2+Lx[109-i]/lx[109-i]
+}
+data.frame(x=q[,1],死亡率=q[,2],生存率=px,生存数=round(lx,digits=0),死亡数=round(dx,digits=0),平均余命=round(ex,digits=2))
+Dx<-Cx<-Nx<-Mx<-rep(0,108)
+v<-1/1.015
+Dx<-v^(0:107)*lx #べき乗(0-107)のベクトルを作成
+Cx<-v^(0:107+0.5)*dx
+Nx<-rev(cumsum(rev(Dx)))　#最終年齢から累積する
+Mx<-rev(cumsum(rev(Cx)))
+KISU<-data.frame(DX=round(Dx,digits=0),CX=round(Cx,digits=0),
+NX=round(Nx,digits=0),MX=round(Mx,digits=0))
+KISU
+
+TEIKI<-function(x,n){
+(Mx[x+1]-Mx[x+n+1])/(Nx[x+1]-Nx[x+n+1])
+}
+SEIZON<-function(x,n){
+Dx[x+n+1]/(Nx[x+1]-Nx[x+n+1])
+}
+
+TEIKI(30,30)
+SEIZON(30,30)
+TEIKI(30,30)+SEIZON(30,30)
+
+V<-function(x,n,t){
+(Mx[x+t+1]-Mx[x+n+1]+Dx[x+n+1])/Dx[x+t+1]-(Mx[x+1]-Mx[x+n+1]+Dx[x+n+1])/(Nx[x+1]-Nx[x+n+1])*(Nx[x+t+1]-Nx[x+n+1])/Dx[x+t+1]
+}
+V(30,10,0:10)
+V(40,10,0:10)
+
+cipois<-function(x){
+ppois(mu,x)-alpha  # αは、正規分布の2標準偏差に対応する2.27％を採用した.
+}
+alpha<-0.0227
+d<-c(57,50,56,83,139)　#10-14歳死亡数
+n<-c(443870,522463,597643,670188,730207)　#10-14歳経過契約数
+for(i in 1:5){
+mu<-d[i]
+result<-uniroot(cipois,c(0,200))　#
+print(result$root,digits=1)　#死亡数の上限値
+print((1-exp(-result$root/n[i]))*1000,digits=2)　#安全割増後の死亡率
+}

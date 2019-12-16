@@ -1,0 +1,19 @@
+##homogeneous poisson 1##
+t<-0;i<-0;T<-rep(0,100)
+Tmax<-10@#10ŠúŠÔ‚Ü‚Ål‚¦‚é
+lambda<-3 #lambda=3‚Æ‚·‚é
+for (i in 1:100){
+u<-runif(1)
+t<-t-1/lambda*log(u)
+if(t<Tmax){
+T[i]<-t 
+i<-i+1
+}else{break}
+}
+Ti<-T[T>0]
+Ti
+##homogeneous poisson 2##
+Tmax<-10;lambda<-3
+N<-rpois(1,lambda*Tmax)
+u<-runif(N)
+sort(Tmax*u)

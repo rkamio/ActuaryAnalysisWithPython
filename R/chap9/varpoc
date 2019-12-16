@@ -1,0 +1,25 @@
+##nenkin genka##
+surv<-c(1,p1^(1:11),p1^11*p2^(1:12),p1^11*p2^12*p3^(1:36))
+m<-0.0025
+vv<-((1-m)^(1/12))^(0:59)
+a1<-vv*surv
+sum(a1)
+##kyufu genka##
+ BSP<-function(t){     #BS公式におけるプットオプション価格
+ d1<-(log(S/K)+t/12*(r+log(1-m)+sigma ^2/2))/(sigma*sqrt(t/12))
+ d2<-d1-sigma*sqrt(t/12)
+ K*exp(-r*t/12)*pnorm(-d2)-S*(1-m)^(t/12)*pnorm(-d1)}
+#P(0,n)を求める．
+ S<-9700000
+ K<-10000000
+ sigma<-0.2
+ r<-0.05
+ (popT<-BSP(60)*surv[60])
+ #P(0,w)(t=0,...,n-1,w=t)
+ alpha<-c(rep(0.9,12),rep(0.95,12),rep(1,36))
+ w<-c(rep(0.004,12),rep(0.002,12),rep(0.001,36))
+ time<-seq(0,5,by=1/12)
+ time<-time[-1]
+ popq<-BSP(time-1/24)*surv*(1-exp(-0.006/12)+alpha*w)
+sum(popq)
+(sum(popq)+popT)/sum(a1)/S

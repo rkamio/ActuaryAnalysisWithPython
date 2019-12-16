@@ -1,0 +1,10 @@
+TP<-read.table("Third_party_claims.txt",header=T)
+attach(TP)
+names(Thirdparty)
+model1<-glm(claims~offset(log(population))+log(accidents),family=poisson)
+summary(model1)
+
+library(MASS)
+model2 <- glm.nb(claims ~ log(accidents) + offset(log(population)))
+summary(model2)
+

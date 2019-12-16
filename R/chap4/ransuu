@@ -1,0 +1,8 @@
+u<-runif(1000) #1000個の一様乱数を生成
+hist(u)　#ヒストグラムに書く　
+n<-rnorm(1000)　#1000個の正規乱数を生成
+hist(n)　#ヒストグラムに書く
+
+u<-runif(200)
+lambda<-10
+hist(-1/lambda*(log(u)),freq=F)

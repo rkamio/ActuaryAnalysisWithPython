@@ -1,0 +1,15 @@
+library(survival);library(MASS)
+data(gehan) 
+dim(gehan)
+gehan[1:10,] #最初の10のデータ
+#データの当てはめ
+Surv(gehan$time,gehan$cens)
+ge.sf<-survfit(formula = Surv(time, cens) ~ treat, data = gehan)
+summary(ge.sf)
+plot(ge.sf,lty=1:2)
+legend(locator(1),c("6-MP","control"),lty=c(1,2))
+#2群の差の検定
+plot(ge.sf,lty=1:2)
+legend(locator(1),c("6-MP","control"),lty=c(1,2))
+
+
