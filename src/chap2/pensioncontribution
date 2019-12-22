@@ -1,4 +1,4 @@
-q<-read.table("shibouritu07M.txt",header=T)
+q<-read.table("../chap1/shibouritu07M.txt",header=T,fileEncoding="shift-jis")
 w<-c(rep(0.03,10),seq(0.03,0.01,by=-0.001),rep(0.01,9),q[61:108,2])
 l<-rep(0,88)
 l[1]<-100
